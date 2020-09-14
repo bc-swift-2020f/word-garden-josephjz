@@ -28,11 +28,41 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // so that guess a letter button is disabled when app is open
+        let text = guessedLetterTextField.text!
+        guessLetterButton.isEnabled = !(text.isEmpty)
+    }
+    
+    func updateUIAfterGuesses() {
+        // makes keyboard go away on app
+        guessedLetterTextField.resignFirstResponder()
+        guessedLetterTextField.text! = ""
+        guessLetterButton.isEnabled = false
+    }
+    
+    @IBAction func doneKeyPressed(_ sender: UITextField) {
+       updateUIAfterGuesses()
     }
     
     @IBAction func guessLetterButtonPressed(_ sender: UIButton) {
+       updateUIAfterGuesses()
     }
+    @IBAction func guessedLetterFieldChanged(_ sender: UITextField) {
+        let text = guessedLetterTextField.text!
+        guessLetterButton.isEnabled = !(text.isEmpty)
+    }
+    
     @IBAction func playAgainButtonPressed(_ sender: UIButton) {
+        // gets contents of text field and checks if it is empty or not
+        // could also do this by checking .count == 0
+        // if text.isEmpty is true, text is a empty string
+        let text = guessedLetterTextField.text!
+        
+        // enable button when you can make a guess (shouldnt be able to click guess button if there is no guess)
+        
+        guessLetterButton.isEnabled = !(text.isEmpty)
     }
+    
 }
 
