@@ -42,22 +42,35 @@ class ViewController: UIViewController {
     }
     
     @IBAction func doneKeyPressed(_ sender: UITextField) {
+        //this hides the keyboard
        updateUIAfterGuesses()
     }
     
     @IBAction func guessLetterButtonPressed(_ sender: UIButton) {
+        //this hides the keyboard
        updateUIAfterGuesses()
     }
     @IBAction func guessedLetterFieldChanged(_ sender: UITextField) {
-        let text = guessedLetterTextField.text!
+        // guessedLetterTextField is an @IBOutlet
+        // guessedLetterFieldChanged is an @IBAction that is tied to text field that is also named with IBOutlet text field ; here, this TextField is assigned to the variable sender, so we can use that instead of... (next comment)
+        // could use let text = guessedLetterTextField.text! also
+        // but we are going to move it down to the nil coallescing code line anyways
+        // var text = sender.text!
+        
+        // text.last will look at the last letter typed
+        // if it is non nil, we will get the last character
+        // otherwise we get a space, which we have to covert over to a string before we can assignn it to text
+        // have to use space " " not empty string "" because .last gives us back a character
+        // sender is a constant, but the properties inside of it are mutable
+        sender.text = String(sender.text?.last ?? " ").trimmingCharacters(in: .whitespaces)
         guessLetterButton.isEnabled = !(text.isEmpty)
         
-        if let lastCharacter = text.last {
-            guessedLetterTextField.text = String(lastCharacter)
-        } else {
-            guessedLetterTextField.text = " "
-        }
-        
+//        if let lastCharacter = text.last {
+//            guessedLetterTextField.text = String(lastCharacter)
+//        } else {
+//            guessedLetterTextField.text = " "
+//        }
+//
     }
     
     @IBAction func playAgainButtonPressed(_ sender: UIButton) {
