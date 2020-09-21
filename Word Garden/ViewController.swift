@@ -41,6 +41,8 @@ class ViewController: UIViewController {
         guessLetterButton.isEnabled = !(text.isEmpty)
         wordToGuess = wordsToGuess[currentWordIndex]
         wordBeingRevealedLabel.text = "_" + String(repeating: " _", count: wordToGuess.count-1)
+        updateGameStatusLabels()
+
     }
     
     func updateUIAfterGuesses() {
@@ -69,6 +71,31 @@ class ViewController: UIViewController {
         wordBeingRevealedLabel.text = revealedWord
     }
     
+    
+    func updateAfterWinOrLose() {
+        // what do we do if the game is over?
+        // - disable guessALetterTextField
+        // - increment currentWordIndex by 1
+        // - disable guessALetterButton
+        // - set playAgainButton .isHidden to false
+        // - update all labels at the top of the screen
+        
+        currentWordIndex += 1
+        guessedLetterTextField.isEnabled = false
+        guessLetterButton.isEnabled = false
+        playAgainButton.isHidden = false
+        
+        updateGameStatusLabels()
+    }
+    
+    func updateGameStatusLabels() {
+        //update labels on top of screen
+        wordsGuessedLabel.text = "Words Guessed: \(wordsGuessedCount)"
+        wordsMissedLabel.text = "Words Missed: \(wordsMissedCount)"
+        wordsRemainingLabel.text = "Words to Guess: \((wordsToGuess.count - (wordsGuessedCount + wordsMissedCount)))"
+        wordsInGameLabel.text = "Words in Game: \(wordsToGuess.count)"
+    }
+    
     func guessALetter() {
         // get current letter guessed and add it to all lettersGuessed
         let currentLetterGuessed = guessedLetterTextField.text!
@@ -85,11 +112,36 @@ class ViewController: UIViewController {
         
         //update game status message label
         guessCount += 1
-        var guesses = "Guesses"
-        if guessCount == 1 {
-            guesses = "Guess"
-        }
+//        var guesses = "Guesses"
+//        if guessCount == 1 {
+//            guesses = "Guess"
+//        }
+        let guesses = (guessCount == 1 ? "Guess" : "Guesses")
         gameStatusMessageLabel.text = "You've Made \(guessCount) \(guesses)"
+        
+        // After each guess, check to see if 2 things happen:
+        // 1) the user won the game
+        // - all letters are guessed, so there are no more underscores in wordBeingRevealed.text
+        // 2) the user may have lost the game
+        // - wrongGuessesRemaining = 0
+        // - handle game over
+        // else continue to play
+        
+        if wordBeingRevealedLabel.text!.contains("_") == false {
+            gameStatusMessageLabel.text = "You've guessed it! It took you \(guessCount) to guess the word."
+            wordsGuessedCount += 1
+            updateAfterWinOrLose()
+        } else if wrongGuessesRemaining == 0 {
+            gameStatusMessageLabel.text = " ☹️ Out of guesses ☹️ "
+            wordsMissedCount += 1
+            updateAfterWinOrLose()
+        }
+        
+        // check to ee if you have played all the words
+        // if so, update the message indicating the player can restart the entire game
+        if currentWordIndex == wordsToGuess.count {
+            gameStatusMessageLabel.text! += "\n\n You've tried all of the words! Restart from the beginning?"
+        }
     }
     
     @IBAction func doneKeyPressed(_ sender: UITextField) {
@@ -127,14 +179,36 @@ class ViewController: UIViewController {
     }
     
     @IBAction func playAgainButtonPressed(_ sender: UIButton) {
-        // gets contents of text field and checks if it is empty or not
-        // could also do this by checking .count == 0
-        // if text.isEmpty is true, text is a empty string
-        let text = guessedLetterTextField.text!
+        // if all words have been guessed and you've selected playAgain, then restart all games as if the app had been restarted
+        if currentWordIndex == wordsToGuess.count {
+            currentWordIndex = 0
+            wordsGuessedCount = 0
+            wordsMissedCount = 0
+        }
         
-        // enable button when you can make a guess (shouldnt be able to click guess button if there is no guess)
+        // hide playAgainButton
+        // enable letterGuessedTextField
+        // disable guessALetterButton - it already is though
+        // currentWord should be set to next word
+        // setWordBeingRevealed.text to underscores separated by spaces
+        // set wrongGuessesRemaining to maxNumberOfWrongGuesses
+        // set guessCount = 0
+        // set flowerImageView to flower8
+        // clear out lettersGuessed, so new word restarts w no letters guessed, or = ""
+        // set gameStatusMessageLabel.text to "You've Made 0 Guesses."
         
-        guessLetterButton.isEnabled = !(text.isEmpty)
+        playAgainButton.isHidden = true
+        guessedLetterTextField.isEnabled = true
+        guessLetterButton.isEnabled = false // don't turn true until a character is in the text field
+        wordToGuess = wordsToGuess[currentWordIndex]
+        wrongGuessesRemaining = maxNumberOfWrongGuesses
+        //create word with underscores, one for each space
+        wordBeingRevealedLabel.text = "_" + String(repeating: " _", count: wordToGuess.count-1)
+        guessCount = 0
+        flowerImageView.image = UIImage(named: "flower\(maxNumberOfWrongGuesses)")
+        lettersGuessed = ""
+        updateGameStatusLabels()
+        gameStatusMessageLabel.text = "You've Made 0 Guesses"
     }
     
 }
